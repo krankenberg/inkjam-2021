@@ -30,7 +30,8 @@ public class Move : MonoBehaviour
     private void Update()
     {
         var position = _transform.position;
-        if (OnReachedTarget != null && Vector3.Distance(position, _navMeshAgent.destination) < StoppingDistance)
+        var distanceToTargetBelowStoppingDistance = Vector3.Distance(position, _navMeshAgent.destination) < StoppingDistance;
+        if (OnReachedTarget != null && distanceToTargetBelowStoppingDistance)
         {
             OnReachedTarget.Invoke();
             OnReachedTarget = null;
@@ -39,7 +40,7 @@ public class Move : MonoBehaviour
         LookAtLookAtTarget();
 
         var velocity = _navMeshAgent.velocity;
-        if (velocity.magnitude > GlobalGameState.Tolerance * 10F)
+        if (!distanceToTargetBelowStoppingDistance && velocity.magnitude > GlobalGameState.Tolerance * 10F)
         {
             _animator.SetBool(Walking, true);
 
