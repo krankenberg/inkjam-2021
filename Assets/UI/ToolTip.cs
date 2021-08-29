@@ -9,11 +9,13 @@ namespace UI
 
         private TextMeshProUGUI _text;
         private RectTransform _textRectTransform;
+        private UnityEngine.Camera _camera;
 
         private void Start()
         {
             _text = GetComponent<TextMeshProUGUI>();
             _textRectTransform = GetComponent<RectTransform>();
+            _camera = GameObject.FindWithTag("MainCamera").GetComponent<UnityEngine.Camera>();
         }
 
         private void LateUpdate()
@@ -21,7 +23,8 @@ namespace UI
             if (!string.IsNullOrEmpty(Text))
             {
                 var mousePosition = Input.mousePosition;
-                _textRectTransform.anchoredPosition = new Vector2(mousePosition.x / Screen.width * 256, mousePosition.y / Screen.height * 256);
+                var viewportPoint = _camera.ScreenToViewportPoint(mousePosition);
+                _textRectTransform.anchoredPosition = new Vector2(viewportPoint.x * 256, viewportPoint.y * 256);
                 _text.text = Text;
             }
             else
