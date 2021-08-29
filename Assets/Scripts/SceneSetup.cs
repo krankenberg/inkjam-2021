@@ -19,6 +19,14 @@ public class SceneSetup : MonoBehaviour
     public GameObject[] Scene2Objects;
     public Transform Scene2_DocMarker;
     public Transform Scene2_StanleyMarker;
+    
+    public GameObject[] BurialSceneObjects;
+    public Transform BurialScene_DocMarker;
+    public Transform BurialScene_StanleyMarker;
+    
+    public GameObject[] OutsideSceneObjects;
+    public Transform OutsideScene_DocMarker;
+    public Transform OutsideScene_StanleyMarker;
 
     private void Start()
     {
@@ -31,6 +39,8 @@ public class SceneSetup : MonoBehaviour
     {
         ActivateSceneObjects(Scene1Objects, false);
         ActivateSceneObjects(Scene2Objects, false);
+        ActivateSceneObjects(BurialSceneObjects, false);
+        ActivateSceneObjects(OutsideSceneObjects, false);
         
         ActivateSceneObjects(sceneObjects, true);
     }
@@ -93,6 +103,26 @@ public class SceneSetup : MonoBehaviour
             Doc.GetComponent<Transform>().position = Scene2_DocMarker.position;
             Doc.GetComponent<StartStitchOnClick>().InteractionPoints = Scene2_DocMarker.GetComponent<Marker>().InteractionPoints;
             Stanley.GetComponent<NavMeshAgent>().Warp(Scene2_StanleyMarker.position);
+        }
+        if (sceneName == "BURIAL_CHAMBER")
+        {
+            ActivateScene(BurialSceneObjects);
+            DirectionalLight.SetActive(false);
+            Doc.GetComponent<Transform>().position = BurialScene_DocMarker.position;
+            Doc.GetComponent<StartStitchOnClick>().InteractionPoints = BurialScene_DocMarker.GetComponent<Marker>().InteractionPoints;
+            Stanley.GetComponent<NavMeshAgent>().Warp(BurialScene_StanleyMarker.position);
+        }
+        if (sceneName == "OUTSIDE_GRAVE")
+        {
+            ActivateScene(OutsideSceneObjects);
+            DirectionalLight.SetActive(true);
+            var light = DirectionalLight.GetComponent<Light>();
+            light.intensity = 0.08F;
+            var lightRotation = DirectionalLight.transform.rotation.eulerAngles;
+            DirectionalLight.transform.rotation = Quaternion.Euler(lightRotation.x, -lightRotation.y, lightRotation.z);
+            Doc.GetComponent<Transform>().position = OutsideScene_DocMarker.position;
+            Doc.GetComponent<StartStitchOnClick>().InteractionPoints = OutsideScene_DocMarker.GetComponent<Marker>().InteractionPoints;
+            Stanley.GetComponent<NavMeshAgent>().Warp(OutsideScene_StanleyMarker.position);
         }
 
         return 0;

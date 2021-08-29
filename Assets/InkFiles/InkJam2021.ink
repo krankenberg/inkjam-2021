@@ -5,7 +5,7 @@ EXTERNAL look(who, where)
 
 -> setup_scene("START") ->
 
-Note: This game does NOT aim to be historically accurate. It is inspired by real history, but given the short development time, many compromises were made and many freedoms were taken.
+OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty short, given the short development time.
 
 + [Start Game] OFF: Have fun!
         <>\\n
