@@ -39,7 +39,7 @@ public class Move : MonoBehaviour
         LookAtLookAtTarget();
 
         var velocity = _navMeshAgent.velocity;
-        if (velocity.magnitude > GlobalGameState.Tolerance)
+        if (velocity.magnitude > GlobalGameState.Tolerance * 10F)
         {
             _animator.SetBool(Walking, true);
 
