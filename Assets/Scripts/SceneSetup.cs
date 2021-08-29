@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using InkFiles;
 using UI;
 using UnityEngine;
 using UnityEngine.AI;
@@ -89,7 +90,8 @@ public class SceneSetup : MonoBehaviour
         {
             ActivateScene(Scene2Objects);
             DirectionalLight.SetActive(true);
-            Doc.GetComponent<Rigidbody>().position = Scene2_DocMarker.position;
+            Doc.GetComponent<Transform>().position = Scene2_DocMarker.position;
+            Doc.GetComponent<StartStitchOnClick>().InteractionPoints = Scene2_DocMarker.GetComponent<Marker>().InteractionPoints;
             Stanley.GetComponent<NavMeshAgent>().Warp(Scene2_StanleyMarker.position);
         }
 

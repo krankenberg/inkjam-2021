@@ -10,7 +10,7 @@ Note: This game does NOT aim to be historically accurate. It is inspired by real
 + [Start Game] OFF: Have fun!
         <>\\n
         <>\\n
-        <>(Click to continue the text when the little arrow in the bottom right appears.)
+        <>(Click to continue when the little arrow appears in the bottom right of the text box.)
     -> briefing
 
 == function setupScene(sceneName) ==
@@ -114,6 +114,12 @@ Note: This game does NOT aim to be historically accurate. It is inspired by real
             -> entrance_opened
         + [Go away]
             -> dialog_end -> choices
+            
+    = look_at_runestone
+        
+        OFF: You look at a huge stone with small rune letters engraved in it.
+        
+        -> dialog_end -> choices
         
     = choices
     
@@ -123,6 +129,8 @@ Note: This game does NOT aim to be historically accurate. It is inspired by real
             -> talk_to_doc
         + [Look at the entrance]
             -> look_at_entrance
+        + [Look at the runestone]
+            -> look_at_runestone
             
     = entrance_opened
     

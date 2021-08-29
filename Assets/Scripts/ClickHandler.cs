@@ -1,17 +1,12 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using InkFiles;
 using UI;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Camera = UnityEngine.Camera;
 
 public class ClickHandler : MonoBehaviour
 {
     public ToolTip ToolTip;
-    
+
     private UnityEngine.Camera _camera;
     private Move _playerMove;
 
@@ -31,7 +26,7 @@ public class ClickHandler : MonoBehaviour
             var ray = _camera.ScreenPointToRay(screenPosition);
             if (Physics.Raycast(ray, out RaycastHit raycastHit, 100))
             {
-                var startStitchOnClick = raycastHit.rigidbody == null ? null : raycastHit.rigidbody.GetComponent<StartStitchOnClick>();
+                var startStitchOnClick = raycastHit.collider == null ? null : raycastHit.collider.GetComponent<StartStitchOnClick>();
 
                 ToolTip.Text = startStitchOnClick != null ? startStitchOnClick.ToolTip : "";
 

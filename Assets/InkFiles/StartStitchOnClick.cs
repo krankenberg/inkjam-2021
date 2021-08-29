@@ -49,7 +49,10 @@ namespace InkFiles
                 var position = transform.position;
                 foreach (var interactionPoint in InteractionPoints)
                 {
-                    Gizmos.DrawLine(position, interactionPoint.position);
+                    if (interactionPoint != null)
+                    {
+                        Gizmos.DrawLine(position, interactionPoint.position);
+                    }
                 }
             }
         }
