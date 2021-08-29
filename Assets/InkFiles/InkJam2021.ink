@@ -1,7 +1,17 @@
 EXTERNAL setupScene(sceneName)
 EXTERNAL endDialog()
+EXTERNAL sleep(time)
+EXTERNAL look(who, where)
 
--> briefing
+-> setup_scene("START") ->
+
+Note: This game does NOT aim to be historically accurate. It is inspired by real history, but given the short development time, many compromises were made and many freedoms were taken.
+
++ [Start Game] OFF: Have fun!
+        <>\\n
+        <>\\n
+        <>(Click to continue the text when the little arrow in the bottom right appears.)
+    -> briefing
 
 == function setupScene(sceneName) ==
 
@@ -15,18 +25,32 @@ EXTERNAL endDialog()
     
     ~ return
 
+== function sleep(time) ==
+
+    // sleep
+    
+    ~ return
+    
+== function look(who, where) ==
+
+    // look
+
+    ~ return
+
 == briefing
 
-    Information that we are going to an old graveyard
-    Graveyard is by an old leader of the great Viking invasion
+    -> setup_scene("BRIEFING") ->
+
+    Information that we are going to an old grave
+    grave is by an old leader of the great Viking invasion
     we can ask some questions that might help us later, but we can also not care much
     
-    -> in_front_of_graveyard
+    -> in_front_of_grave
     
 
-== in_front_of_graveyard
+== in_front_of_grave
 
-    -> setup_scene("FRONT_OF_GRAVEYARD") ->
+    -> setup_scene("FRONT_OF_GRAVE") ->
     
     -> initial_talk
     
@@ -37,13 +61,18 @@ EXTERNAL endDialog()
         OFF: Dr. Greenwood not even glances at you, not really expecting an answer.
         
         * STANLEY: Of course, Sir.
+            ~ look("DOC", "STANLEY")
+            >>> SLEEP 1
+            ~ look("DOC", "RIGHT")
         * [Remain silent]
         
         -
-        DOC: *mutters to himself* How do we get into this graveyard?
+        DOC: *mutters to himself* How do we get into this grave?
         
         * STANLEY: I'll think of something, Sir.
+            ~ look("DOC", "STANLEY")
             DOC: Sure you'll do.
+            ~ look("DOC", "RIGHT")
         * [Look around]
         
         -
@@ -54,6 +83,8 @@ EXTERNAL endDialog()
         OFF: Dr. Greenwood still stares at the runes, supporting his chin with one hand. And touching some of the runes with the other hand.
         
         + STANLEY: Sir?
+        
+            ~ look("DOC", "STANLEY")
         
             DOC: Yes, Stanley?
             
@@ -66,6 +97,7 @@ EXTERNAL endDialog()
                 DOC: Common misconception, Stanley. There were some sea burials, but most high ranking Vikings were simply buried in their boats.
             ++ [Go away]
                 STANLEY: Thanks, Sir.
+                ~ look("DOC", "RIGHT")
                 -> dialog_end -> choices
             
             -- -> talk
@@ -75,7 +107,7 @@ EXTERNAL endDialog()
             
     = look_at_entrance
     
-        OFF: A huge rock is blocking the entrance.
+        OFF: A huge rock is {|still} blocking the entrance.
         
         * [Push the rock aside]
             OFF: You simply **push** the rock aside.
@@ -110,12 +142,12 @@ EXTERNAL endDialog()
         
         DOC: Here we are.
 
-    -> outside_graveyard
+    -> outside_grave
     
 
-== outside_graveyard
+== outside_grave
 
-    -> setup_scene("OUTSIDE_GRAVEYARD") ->
+    -> setup_scene("OUTSIDE_GRAVE") ->
 
     DOC: What an adventure, Stanley, and how I solved all those puzzles single-handedly.
     

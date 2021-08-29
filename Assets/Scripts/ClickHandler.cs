@@ -2,12 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using InkFiles;
+using UI;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Camera = UnityEngine.Camera;
 
 public class ClickHandler : MonoBehaviour
 {
+    public ToolTip ToolTip;
+    
     private UnityEngine.Camera _camera;
     private Move _playerMove;
 
@@ -19,7 +23,8 @@ public class ClickHandler : MonoBehaviour
 
     private void Update()
     {
-        if (GlobalGameState.FreePlay && Input.GetButtonUp("Fire1") && !EventSystem.current.IsPointerOverGameObject())
+        ToolTip.Text = "";
+        if (GlobalGameState.FreePlay && !EventSystem.current.IsPointerOverGameObject())
         {
             var screenPosition = Input.mousePosition;
 
@@ -27,15 +32,20 @@ public class ClickHandler : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit raycastHit, 100))
             {
                 var startStitchOnClick = raycastHit.rigidbody == null ? null : raycastHit.rigidbody.GetComponent<StartStitchOnClick>();
-                if (startStitchOnClick != null)
+
+                ToolTip.Text = startStitchOnClick != null ? startStitchOnClick.ToolTip : "";
+
+                if (Input.GetButtonUp("Fire1"))
                 {
-                    startStitchOnClick.Click();
+                    if (startStitchOnClick != null)
+                    {
+                        startStitchOnClick.Click();
+                    }
+                    else
+                    {
+                        _playerMove.Click(raycastHit.point);
+                    }
                 }
-                else
-                {
-                    _playerMove.Click(raycastHit.point);
-                }
-                
             }
         }
     }

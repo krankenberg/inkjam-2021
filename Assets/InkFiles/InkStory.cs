@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using System.Linq;
 using Ink.Runtime;
 using UI;
@@ -11,6 +11,8 @@ namespace InkFiles
         public TextControl TextControl;
         public ChoiceControl ChoiceControl;
         public SceneSetup SceneSetup;
+        public SpriteRenderer DocSpriteRenderer;
+        public SpriteRenderer StanleySpriteRenderer;
 
         public TextAsset InkFile;
 
@@ -20,16 +22,56 @@ namespace InkFiles
         private void Start()
         {
             _inkStory = new Story(InkFile.text);
-            
-            _inkStory.BindExternalFunction ("setupScene", (string sceneName) =>
+
+            _inkStory.BindExternalFunction("setupScene", (string sceneName) => { SceneSetup.Setup(sceneName); });
+
+            _inkStory.BindExternalFunction("endDialog", () => { GlobalGameState.FreePlay = true; });
+
+            _inkStory.BindExternalFunction("look", (string who, string where) =>
             {
-                SceneSetup.Setup(sceneName);
-            });  
+                Debug.Log("look " + who + " -> " + where);
+                var whoSpriteRenderer = who == "STANLEY" ? StanleySpriteRenderer : DocSpriteRenderer;
+                if (who == "STANLEY" && where == "DOC")
+                {
+                    where = StanleySpriteRenderer.transform.position.x > DocSpriteRenderer.transform.position.x ? "LEFT" : "RIGHT";
+                }
+
+                if (who == "DOC" && where == "STANLEY")
+                {
+                    where = StanleySpriteRenderer.transform.position.x < DocSpriteRenderer.transform.position.x ? "LEFT" : "RIGHT";
+                }
+
+                if (where == "LEFT")
+                {
+                    whoSpriteRenderer.flipX = true;
+                }
+
+                if (where == "RIGHT")
+                {
+                    whoSpriteRenderer.flipX = false;
+                }
+            });
+        }
+
+        private void Sleep(float time)
+        {
+            Debug.Log("sleep " + time);
             
-            _inkStory.BindExternalFunction ("endDialog", () =>
-            {
-                GlobalGameState.FreePlay = true;
-            });  
+            var hideUiBefore = GlobalGameState.HideUi;
+            GlobalGameState.HideUi = true;
+
+            StartCoroutine(Sleep(time, hideUiBefore));
+        }
+
+        private IEnumerator Sleep(float time, bool hideUiBefore)
+        {
+            yield return new WaitForSeconds(time);
+            
+            Continue();
+
+            yield return null;
+        
+            GlobalGameState.HideUi = hideUiBefore;
         }
 
         private void Update()
@@ -45,7 +87,7 @@ namespace InkFiles
         {
             ChoiceControl.ClearChoices();
             _inkStory.ChooseChoiceIndex(index);
-            
+
             Continue();
         }
 
@@ -56,6 +98,7 @@ namespace InkFiles
 
         public void Continue(bool changeFreePlay = true)
         {
+            Debug.Log("Continue");
             if (CanContinue())
             {
                 if (changeFreePlay)
@@ -64,12 +107,18 @@ namespace InkFiles
                 }
 
                 var nextLine = _inkStory.Continue();
+                if (nextLine.StartsWith(">>> SLEEP"))
+                {
+                    Sleep(float.Parse(nextLine.Replace(">>> SLEEP ", "")));
+                }
+                Debug.Log("Continue: " + nextLine);
                 if (_inkStory.currentTags.Contains("JUST_INKY"))
                 {
                     Debug.Log("JUST_INKY: " + nextLine);
                     Continue(false);
                     return;
                 }
+
                 TextControl.SetText(nextLine);
             }
         }
@@ -99,6 +148,5 @@ namespace InkFiles
             _inkStory.ChoosePathString(newPath);
             Continue();
         }
-        
     }
 }

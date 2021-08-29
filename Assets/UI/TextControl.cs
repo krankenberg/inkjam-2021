@@ -6,6 +6,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 namespace UI
 {
@@ -74,6 +76,15 @@ namespace UI
             }
 
             _indicatorAnimatorController.SetBool(Visible, (HasMorePages() || _inkStory.CanContinue()) && IsAtEndOfPage(currentPageInfo));
+
+            if (Input.GetButtonUp("Fire1"))
+            {
+                var pointerEventData = new PointerEventData(EventSystem.current)
+                {
+                    button = PointerEventData.InputButton.Left
+                };
+                NextPage(pointerEventData);
+            }
         }
 
         private void FadeInLetters(TMP_PageInfo currentPageInfo)
@@ -135,7 +146,8 @@ namespace UI
             {
                 if (textParts[0].Equals(speakerColor.Identifier, StringComparison.OrdinalIgnoreCase))
                 {
-                    text = text.Replace(textParts[0] + ": ", "");                        
+                    text = text.Replace(textParts[0] + ": ", "")
+                        .Replace("\\n", "\n");        
                     text = Regex.Replace(text, "\\*{2}(.+)\\*{2}", ReplaceBold);
                     text = Regex.Replace(text, "\\*(.+)\\* ?", ReplaceEmotes);
                     return speakerColor;

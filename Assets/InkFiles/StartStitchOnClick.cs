@@ -5,6 +5,7 @@ namespace InkFiles
 {
     public class StartStitchOnClick : MonoBehaviour
     {
+        public string ToolTip;
         public string Stitch;
         public Transform[] InteractionPoints;
 
