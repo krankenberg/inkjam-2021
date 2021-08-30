@@ -112,6 +112,7 @@ public class SceneSetup : MonoBehaviour
             ActivateScene(Scene2Objects);
             DirectionalLight.SetActive(true);
 
+            DocLookRight();
             Warp(Scene2_DocMarker, Scene2_StanleyMarker);
             StanleyLookAtDoc();
         }
