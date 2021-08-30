@@ -103,6 +103,7 @@ public class SceneSetup : MonoBehaviour
         if (sceneName == "BRIEFING")
         {
             BlackScreen.SetActive(false);
+            DocLookLeft();
             StanleyLookAtDoc();
         }
 

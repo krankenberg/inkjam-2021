@@ -11,12 +11,23 @@ VAR touchedRuneCount = 0
 VAR runesOnWallSeen = false
 VAR runeNames = false
 VAR sawTorch = false
+VAR runeTryCounter = 0
+VAR triedOpen = false
+VAR opna = false
+VAR quit = false
 
 -> setup_scene("START") ->
 
 OFF: Welcome. Shall we start?
 
 + [Start Game] OFF: Click to continue when the little arrow appears in the bottom right of the text box or to instantly show the text.\\nHave fun!
+    STANLEY: Dr. Greenwood rang the bell to signal that I should seek him out.
+    
+    ** STANLEY: As a good butler, I obeyed the command immediately.[] Normally, he should be in the saloon at this time.
+    ** (finish_tea_first) STANLEY: I finished my tea first.[] After that, I sought him out. Normally, he is in the saloon at this time.
+    
+    -
+    OFF: You enter the saloon.
     -> briefing
 
 == function setupScene(sceneName) ==
@@ -64,10 +75,44 @@ OFF: Welcome. Shall we start?
 == briefing
 
     -> setup_scene("BRIEFING") ->
-
-    Information that we are going to an old grave
-    grave is by an old leader of the great Viking invasion
-    we can ask some questions that might help us later, but we can also not care much
+    
+    STANLEY: Sir?
+    ~ look("DOC", "STANLEY")
+    
+    DOC: Stanley, {finish_tea_first: where have you been that long?| fast as always!} Listen: a colleague of mine brought a new occasion to my attention. You need to pack at once.
+    
+    - (accompany_or_not)
+    * (question_accompany) STANLEY: Shall I accompany you, Sir?
+        DOC: Naturally, Stanley. What would a gentleman be without his butler?
+        -> accompany_or_not
+    * STANLEY: Where are we going, Sir?
+        -> location
+    
+    - (location)
+    DOC: We are going north, so pack for cold days. Our destination is an old grave.
+    
+    - (infos)
+    * (ask_for_grave) STANLEY: What kind of grave is that?
+        DOC: We are going to the grave of an old Viking leader. He died during the Great Viking invasion. My colleague told me that there should be a precious artifact.
+        -> infos
+    * {ask_for_grave} STANLEY: How come, nobody else entered that grave before, Sir?
+        DOC: Aha, because of course no one is as clever a historian as I am, Stanley.
+        -> infos
+    * [STANLEY: I will pack at once, Sir.]
+        ~ look("STANLEY", "RIGHT")
+        STANLEY: I will pack at once, Sir.
+    
+    -
+    DOC: Godspeed, Stanley!
+    ~ look("DOC", "LEFT")
+    {
+        - finish_tea_first && question_accompany:
+            DOC: What is up with this Stanley, lately? Getting more and more cheeky.
+        - finish_tea_first || question_accompany:
+            DOC: Ah, my good Stanley. A little bit cheeky form time to time, but still.
+        - else:
+            DOC: Ah, my good Stanley. Always dutiful.
+    }
     
     -> in_front_of_grave
     
@@ -84,7 +129,7 @@ OFF: Welcome. Shall we start?
         DOC: Look at this Stanley, all those old runes. Magnificient, aren't they?
         OFF: Dr. Greenwood not even glances at you, not really expecting an answer.
         
-        * STANLEY: Of course, Sir.
+        * STANLEY: Indeed, Sir.
             ~ look("DOC", "STANLEY")
             >>> SLEEP 0.75
             ~ look("DOC", "RIGHT")
@@ -95,8 +140,9 @@ OFF: Welcome. Shall we start?
         
         * STANLEY: I'll think of something, Sir.
             ~ look("DOC", "STANLEY")
-            DOC: Sure you'll do.
+            >>> SLEEP 0.5
             ~ look("DOC", "RIGHT")
+            DOC: Yes yes, sure you'll do.
         * [Look around]
         
         -
@@ -110,11 +156,11 @@ OFF: Welcome. Shall we start?
             - DOC: *moving his fingers across the runes in patterns, he mutters to himself* Maybe now something will happen..
         }
         
-        + STANLEY: Sir?
+        + STANLEY: {Sir\?|Sorry to interrupt you again, Sir.}
         
             ~ look("DOC", "STANLEY")
         
-            DOC: Yes, Stanley?
+            DOC: {Yes, Stanley?|Stanley?|*Dr. Greenwood just turns around to you without saying anything.*}
             
             -- (talk)
             ** (rune_knowledge) STANLEY: What do those runes say?
@@ -123,6 +169,8 @@ OFF: Welcome. Shall we start?
                 DOC: Yes, they had.
             ** {boat_burial} STANLEY: And then the boat is put to the sea and set to fire?
                 DOC: Common misconception, Stanley. There were some sea burials, but most high ranking Vikings were simply buried in their boats.
+            ** (asked_about_stones){look_at_stones} STANLEY: Have you already seen those strange stones, Sir?
+                DOC: I really don't care about some stones, Stanley.
             ++ [Go away]
                 STANLEY: Thanks, Sir.
                 ~ look("DOC", "RIGHT")
@@ -174,7 +222,7 @@ OFF: Welcome. Shall we start?
         ~ event("ENTRANCE_OPEN")
         ~ look("DOC", "LEFT")
         OFF: Dr. Greenwood flinches shortly.
-        DOC: Aha! See Stanley? I knew I was into something with these runes.
+        DOC: Aha! See Stanley? I knew I was into something with these runes. {asked_about_stones: Have you finished playing with your stones there? Great things are going to happen!|}
         
         * STANLEY: Of course, Sir.
         * [Remain silent]
@@ -253,15 +301,16 @@ OFF: Welcome. Shall we start?
 
         { cycle:
             - OFF: Dr. Greenwood still stares at the runes, supporting his chin with one hand. And touching some of the runes with the other hand.
-            - DOC: Hm, maybe those runes will do the trick.
+            - DOC: Hm, maybe **those** runes will do the trick like outdoors.
             - DOC: *moving his fingers across the runes in patterns, he mutters to himself* Maybe now something will happen..
+            - DOC: {opna:Opna! .. Opna?|Speak openly...}
         }
         
-        + STANLEY: Sir?
+        + STANLEY: {Sir\?|Sorry to interrupt you again, Sir.}
         
             ~ look("DOC", "STANLEY")
         
-            DOC: Yes, Stanley?
+            DOC: {Yes, Stanley?|Stanley?|*Dr. Greenwood just turns around to you without saying anything.*}
             
             -- (talk)
             ** (rune_knowledge2) STANLEY: What do those runes say?
@@ -271,6 +320,16 @@ OFF: Welcome. Shall we start?
             ** {runes_not_making_sense} STANLEY: Why do those runes make no sense?
                 DOC: They spell, 'Y N P L O E A'. No meaning in that.
                 ~ runeNames = true
+            ** {rune_knowledge2} STANLEY: Are you certain it says, 'openly'?
+                DOC: Needless to say, I am certain.
+            ** {triedOpen || runeTryCounter > 3} STANLEY: What is 'open' in old norse?
+                ~ opna = true
+                DOC: 'OPNA', aha, I just came to an idea.
+                ~ look("DOC", "RIGHT")
+                DOC: *loud* OPNA!
+                >>> SLEEP 0.75
+                OFF: Nothing happens.
+                -> dialog_end -> choices
             ** {sawTorch} STANLEY: Have you lit all those torches?
                 DOC: No, Stanley. Have you?
                 
@@ -324,7 +383,7 @@ OFF: Welcome. Shall we start?
         
     = way_back
     
-        STANLEY: I should help Mr. Greenwood.
+        STANLEY: I should help Dr. Greenwood.
         
         -> dialog_end -> choices
 
@@ -336,7 +395,7 @@ OFF: Welcome. Shall we start?
     
     = initial_talk
         
-        DOC: Here we are. // TODO
+        DOC: Look at this, Stanley.
         ~ look("DOC", "RIGHT")
         >>> SLEEP 0.5
         ~ look("DOC", "LEFT")
@@ -345,8 +404,11 @@ OFF: Welcome. Shall we start?
         >>> SLEEP 0.5
         ~ look("DOC", "LEFT")
         >>> SLEEP 0.5
-        DOC: Astonishing!
-
+        DOC: Astonishing! And there in the boat, I see the artifact. Stanley..
+        STANLEY: Yes, Sir.
+        OFF: You climb into the boat and get the artifact, as soon as you climb out again Dr. Greenwood takes it and looks at it.
+        DOC: Fascinating, now let's get out of here. It's getting cold.
+        
     -> outside_grave
     
 
@@ -354,10 +416,13 @@ OFF: Welcome. Shall we start?
 
     -> setup_scene("OUTSIDE_GRAVE") ->
 
-    DOC: What an adventure, Stanley, and how I solved all those puzzles single-handedly. // TODO
+    DOC: What an adventure, Stanley, and how I solved all those puzzles single-handedly.
     
-    * STANLEY: Yes, Sir.
-    * STANLEY: I quit, Sir.
+    * STANLEY: Another great achievement, Sir.
+    * STANLEY: I quit, Sir.[] It has been enough. I am doing all the hard word. And you are taking credit for it.
+        ~ quit = true
+        DOC: Outrageous! How could you...
+        OFF: As you wander off, you can't hear what he is saying.
 
     -
     -> the_end
@@ -366,7 +431,12 @@ OFF: Welcome. Shall we start?
 
     -> setup_scene("THE_END") ->
     
-    OFF: Thanks for playing! // TODO
+    {
+        - quit: OFF: Stanley began to work for another Lord, who honours his work and even mentions his name in his publications.
+        - else: OFF: Always thinking of something, Stanley helps Dr. Greenwood until this day. Never mentioned by him in any publication.
+    }
+    
+    OFF: Thanks for playing!
     
     -
     -> END
@@ -411,22 +481,25 @@ OFF: Welcome. Shall we start?
     { 
         - touchedRuneCount == 4 && touchedRunes == "OPNA":
     
-            OFF: As you touch this rune, the door opens, yay. // TODO
+            OFF: As you touch this rune, suddenly the earth shakes again, and you hear rumbling from the door.
             
             ~ walkToDoor()
             ~ event("DOOR_OPEN")
             ~ look("DOC", "RIGHT")
             
-            DOC: Aha, I spoke openly about my feelings. That must have opened the door!
+            DOC: {opna:Aha, I said 'OPNA' in the right intonation or maybe now it acknowledged me openly talking about my feelings.|Aha, I spoke openly about my feelings.} That must have opened the door!
             
             -> at_the_burial_chamber
-            
-        OFF: Dr. Greenwood flinches shortly.
         
         - touchedRuneCount >= 4:
         
-            OFF: As this rune begins to glow, all runes stop to glow one after another with this rune being the last. {runeNames:If you remember correct, you spelled, '{touchedRunes}'. Why isn't anything happening?}
+            OFF: As this rune begins to glow, all runes stop to glow one after another with this rune being the last. {runeNames:If you remember correct, you spelled, '{touchedRunes}'. Why isn't anything happening?} {opna: Maybe I should try 'OPNA'.|}
             
+            {touchedRunes == "OPEN":
+                ~ triedOpen = true
+            }
+            
+            ~ runeTryCounter += 1
             ~ touchedRunes = ""
             ~ touchedRuneCount = 0
     }

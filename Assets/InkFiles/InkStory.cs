@@ -75,6 +75,11 @@ namespace InkFiles
             {
                 Debug.Log("look " + who + " -> " + where);
                 var whoSpriteRenderer = who == "STANLEY" ? StanleySpriteRenderer : DocSpriteRenderer;
+                var moveComponent = whoSpriteRenderer.GetComponentInParent<Move>();
+                if (moveComponent != null)
+                {
+                    moveComponent.LookAt = null;
+                }
                 if (who == "STANLEY" && where == "DOC")
                 {
                     where = StanleySpriteRenderer.transform.position.x > DocSpriteRenderer.transform.position.x ? "LEFT" : "RIGHT";
