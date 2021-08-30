@@ -4,14 +4,19 @@ EXTERNAL sleep(time)
 EXTERNAL look(who, where)
 EXTERNAL event(eventName)
 EXTERNAL walkToDoc()
+EXTERNAL walkToDoor()
+
+VAR touchedRunes = ""
+VAR touchedRuneCount = 0
+VAR runesOnWallSeen = false
+VAR runeNames = false
+VAR sawTorch = false
 
 -> setup_scene("START") ->
 
 OFF: Welcome. Shall we start?
 
-+ [Start Game] OFF: Have fun!
-        <>\\n
-        <>(Click to continue when the little arrow appears in the bottom right of the text box or to instantly show the text.)
++ [Start Game] OFF: Click to continue when the little arrow appears in the bottom right of the text box or to instantly show the text.\\nHave fun!
     -> briefing
 
 == function setupScene(sceneName) ==
@@ -45,6 +50,12 @@ OFF: Welcome. Shall we start?
     ~ return
     
 == function walkToDoc() ==
+
+    // event
+
+    ~ return
+    
+== function walkToDoor() ==
 
     // event
 
@@ -169,8 +180,153 @@ OFF: Welcome. Shall we start?
         * [Remain silent]
 
         -
-        -> at_the_burial_chamber
+        OFF: Dr. Greenwood rushes into the grave. You follow shortly after.
+        -> room_1
     
+
+== room_1
+
+    -> setup_scene("ROOM_1") ->
+
+    OFF: Dr. Greenwood already stands in front of another runestone and examines it.
+    
+    -> dialog_end -> choices
+            
+    = choices
+    
+        Choices
+    
+        + [Talk to Dr. Greenwood]
+            -> talk_to_doc
+        + [Look at the entrance]
+            -> look_at_entrance
+        + [Look at the runestone]
+            -> look_at_runestone
+        + [Touch O]
+            -> press_runic_o
+        + [Touch P]
+            -> press_runic_p
+        + [Touch E]
+            -> press_runic_e
+        + [Touch N]
+            -> press_runic_n
+        + [Touch L]
+            -> press_runic_l
+        + [Touch Y]
+            -> press_runic_y
+        + [Touch A]
+            -> press_runic_a
+        + [Torch]
+            -> torch
+        + [Way out]
+            -> way_back
+            
+    = press_runic_y
+    
+        -> touch_rune("Y") -> dialog_end -> choices
+            
+    = press_runic_a
+    
+        -> touch_rune("A") -> dialog_end -> choices
+            
+    = press_runic_l
+    
+        -> touch_rune("L") -> dialog_end -> choices
+            
+    = press_runic_n
+    
+        -> touch_rune("N") -> dialog_end -> choices
+            
+    = press_runic_e
+    
+        -> touch_rune("E") -> dialog_end -> choices
+            
+    = press_runic_p
+    
+        -> touch_rune("P") -> dialog_end -> choices
+            
+    = press_runic_o
+    
+        -> touch_rune("O") -> dialog_end -> choices
+            
+    = talk_to_doc // TODO
+
+        { cycle:
+            - OFF: Dr. Greenwood still stares at the runes, supporting his chin with one hand. And touching some of the runes with the other hand.
+            - DOC: Hm, maybe those runes will do the trick.
+            - DOC: *moving his fingers across the runes in patterns, he mutters to himself* Maybe now something will happen..
+        }
+        
+        + STANLEY: Sir?
+        
+            ~ look("DOC", "STANLEY")
+        
+            DOC: Yes, Stanley?
+            
+            -- (talk)
+            ** (rune_knowledge2) STANLEY: What do those runes say?
+                DOC: It says: 'Speak openly and pass in.'
+            ** (runes_not_making_sense) {runesOnWallSeen} STANLEY: Have you seen those big runes on the wall?
+                DOC: Of course, I have seen them. But they do not make any sense.
+            ** {runes_not_making_sense} STANLEY: Why do those runes make no sense?
+                DOC: They spell, 'Y N P L O E A'. No meaning in that.
+                ~ runeNames = true
+            ** {sawTorch} STANLEY: Have you lit all those torches?
+                DOC: No, Stanley. Have you?
+                
+                *** STANLEY: Yes, Sir.
+                    DOC: Fast as always with your tasks, Stanley.
+                *** STANLEY: No, Sir.
+                    DOC: Wouldn't that have been your natural task?
+                    STANLEY: So who lit them? Or how did they stay on that long?
+                    DOC: We have more pressing business here, Stanley...
+                    
+                    **** STANLEY: But[ isn't it strange that they are lit?]...
+                        ~ look("DOC", "RIGHT")
+                        OFF: Dr. Greenwood raises an eyebrow and then turns away from you.
+                        -> dialog_end -> choices
+                         
+                    **** [Remain silent]
+                
+            ++ [Go away]
+                STANLEY: Thanks, Sir.
+                ~ look("DOC", "RIGHT")
+                -> dialog_end -> choices
+            
+            -- -> talk
+                
+        + [Go away]
+            -> dialog_end -> choices
+        
+    = look_at_runestone
+        
+        OFF: You look at a huge stone with small rune letters engraved in it. {rune_knowledge2: Dr. Greenwood said, that they say, 'Speak openly and pass in.'|They don't make any sense to you.}
+        
+        -> dialog_end -> choices
+            
+    = look_at_entrance
+    
+        OFF: A big door  is {|still} blocking the entrance. {||Maybe there is some sort of mechanism to open it.}
+        
+        -> dialog_end -> choices
+        
+    = torch
+    
+        ~ sawTorch = true
+
+        { shuffle:
+            - OFF: It's a torch.
+            - STANLEY: *to himself* How are those torches burning that long?
+            - OFF: A burning torch.
+        }
+        
+        -> dialog_end -> choices
+        
+    = way_back
+    
+        STANLEY: I should help Mr. Greenwood.
+        
+        -> dialog_end -> choices
 
 == at_the_burial_chamber
 
@@ -180,7 +336,7 @@ OFF: Welcome. Shall we start?
     
     = initial_talk
         
-        DOC: Here we are.
+        DOC: Here we are. // TODO
         ~ look("DOC", "RIGHT")
         >>> SLEEP 0.5
         ~ look("DOC", "LEFT")
@@ -198,7 +354,7 @@ OFF: Welcome. Shall we start?
 
     -> setup_scene("OUTSIDE_GRAVE") ->
 
-    DOC: What an adventure, Stanley, and how I solved all those puzzles single-handedly.
+    DOC: What an adventure, Stanley, and how I solved all those puzzles single-handedly. // TODO
     
     * STANLEY: Yes, Sir.
     * STANLEY: I quit, Sir.
@@ -210,7 +366,7 @@ OFF: Welcome. Shall we start?
 
     -> setup_scene("THE_END") ->
     
-    OFF: Thanks for playing!
+    OFF: Thanks for playing! // TODO
     
     -
     -> END
@@ -231,9 +387,51 @@ OFF: Welcome. Shall we start?
     
     ->->
     
+== touch_rune(rune)
+
+    ~ runesOnWallSeen = true
+
+    { 
+        - touchedRunes ? rune: 
     
+            OFF: You touch the already glowing rune, all runes stop to glow at once.
+            
+            ~ touchedRunes = ""
+            ~ touchedRuneCount = 0
     
+        - else:
+            
+            ~ touchedRunes += rune
     
+            OFF: You touch the rune{runeNames: standing for '{rune}'|}. It begins to glow.
+
+            ~ touchedRuneCount += 1
+    }
+    
+    { 
+        - touchedRuneCount == 4 && touchedRunes == "OPNA":
+    
+            OFF: As you touch this rune, the door opens, yay. // TODO
+            
+            ~ walkToDoor()
+            ~ event("DOOR_OPEN")
+            ~ look("DOC", "RIGHT")
+            
+            DOC: Aha, I spoke openly about my feelings. That must have opened the door!
+            
+            -> at_the_burial_chamber
+            
+        OFF: Dr. Greenwood flinches shortly.
+        
+        - touchedRuneCount >= 4:
+        
+            OFF: As this rune begins to glow, all runes stop to glow one after another with this rune being the last. {runeNames:If you remember correct, you spelled, '{touchedRunes}'. Why isn't anything happening?}
+            
+            ~ touchedRunes = ""
+            ~ touchedRuneCount = 0
+    }
+    
+    ->->    
     
     
     

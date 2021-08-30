@@ -14,8 +14,17 @@ namespace InkFiles
         public SpriteRenderer DocSpriteRenderer;
         public SpriteRenderer StanleySpriteRenderer;
         public Animator EntranceAnimator;
+        public Animator DoorAnimator;
         public StonePuzzle StonePuzzle;
         private static readonly int Open = Animator.StringToHash("open");
+
+        public StartStitchOnClick RunicO;
+        public StartStitchOnClick RunicP;
+        public StartStitchOnClick RunicE;
+        public StartStitchOnClick RunicN;
+        public StartStitchOnClick RunicL;
+        public StartStitchOnClick RunicY;
+        public StartStitchOnClick RunicA;
 
         public TextAsset InkFile;
 
@@ -37,6 +46,13 @@ namespace InkFiles
                         .WalkToPosition(DocSpriteRenderer.GetComponentInParent<StartStitchOnClick>().GetClosestInteractionPoint());
                 });
 
+            _inkStory.BindExternalFunction("walkToDoor",
+                () =>
+                {
+                    StanleySpriteRenderer.GetComponentInParent<Move>()
+                        .WalkToPosition(DoorAnimator.GetComponent<StartStitchOnClick>().GetClosestInteractionPoint());
+                });
+
             _inkStory.BindExternalFunction("event", (string eventName) =>
             {
                 if (eventName == "ENTRANCE_OPEN")
@@ -47,6 +63,11 @@ namespace InkFiles
                 if (eventName == "STONE_PUZZLE")
                 {
                     StonePuzzle.StartPuzzle();
+                }
+
+                if (eventName == "DOOR_OPEN")
+                {
+                    DoorAnimator.SetBool(Open, true);
                 }
             });
 
@@ -74,6 +95,36 @@ namespace InkFiles
                     whoSpriteRenderer.flipX = false;
                 }
             });
+
+            _inkStory.ObserveVariable("touchedRunes", (string varName, object newValue) =>
+            {
+                RunicO.GetComponentInChildren<Light>().enabled = ContainsLetter(newValue, "O");
+                RunicP.GetComponentInChildren<Light>().enabled = ContainsLetter(newValue, "P");
+                RunicE.GetComponentInChildren<Light>().enabled = ContainsLetter(newValue, "E");
+                RunicN.GetComponentInChildren<Light>().enabled = ContainsLetter(newValue, "N");
+                RunicL.GetComponentInChildren<Light>().enabled = ContainsLetter(newValue, "L");
+                RunicY.GetComponentInChildren<Light>().enabled = ContainsLetter(newValue, "Y");
+                RunicA.GetComponentInChildren<Light>().enabled = ContainsLetter(newValue, "A");
+            });
+
+            _inkStory.ObserveVariable("runeNames", (string varName, object newValue) =>
+            {
+                if ((bool)newValue)
+                {
+                    RunicO.ToolTip += " (O)";
+                    RunicP.ToolTip += " (P)";
+                    RunicE.ToolTip += " (E)";
+                    RunicN.ToolTip += " (N)";
+                    RunicL.ToolTip += " (L)";
+                    RunicY.ToolTip += " (Y)";
+                    RunicA.ToolTip += " (A)";
+                }
+            });
+        }
+
+        private static bool ContainsLetter(object newValue, string letter)
+        {
+            return ((string)newValue).Contains(letter);
         }
 
         private void Sleep(float time)

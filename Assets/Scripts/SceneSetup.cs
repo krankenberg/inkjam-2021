@@ -25,6 +25,10 @@ public class SceneSetup : MonoBehaviour
     public Transform BurialScene_DocMarker;
     public Transform BurialScene_StanleyMarker;
 
+    public GameObject[] Room1_SceneObjects;
+    public Transform Room1__DocMarker;
+    public Transform Room1__StanleyMarker;
+
     public GameObject[] OutsideSceneObjects;
     public Transform OutsideScene_DocMarker;
     public Transform OutsideScene_StanleyMarker;
@@ -42,6 +46,7 @@ public class SceneSetup : MonoBehaviour
         ActivateSceneObjects(Scene2Objects, false);
         ActivateSceneObjects(BurialSceneObjects, false);
         ActivateSceneObjects(OutsideSceneObjects, false);
+        ActivateSceneObjects(Room1_SceneObjects, false);
 
         ActivateSceneObjects(sceneObjects, true);
     }
@@ -110,6 +115,16 @@ public class SceneSetup : MonoBehaviour
             StanleyLookAtDoc();
         }
 
+        if (sceneName == "ROOM_1")
+        {
+            ActivateScene(Room1_SceneObjects);
+            DirectionalLight.SetActive(false);
+
+            Warp(Room1__DocMarker, Room1__StanleyMarker);
+            DocLookRight();
+            StanleyLookAtDoc();
+        }
+
         if (sceneName == "BURIAL_CHAMBER")
         {
             ActivateScene(BurialSceneObjects);
@@ -159,5 +174,10 @@ public class SceneSetup : MonoBehaviour
     private void DocLookLeft()
     {
         Doc.GetComponentInChildren<SpriteRenderer>().flipX = true;
+    }
+
+    private void DocLookRight()
+    {
+        Doc.GetComponentInChildren<SpriteRenderer>().flipX = false;
     }
 }
