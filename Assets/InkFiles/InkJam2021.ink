@@ -419,9 +419,10 @@ OFF: Welcome. Shall we start?
     DOC: What an adventure, Stanley, and how I solved all those puzzles single-handedly.
     
     * STANLEY: Another great achievement, Sir.
-    * STANLEY: I quit, Sir.[] It has been enough. I am doing all the hard word. And you are taking credit for it.
+    * STANLEY: I quit, Sir.[] It has been enough. I am doing all the hard work. And you are taking credit for it.
         ~ quit = true
         DOC: Outrageous! How could you...
+        ~ look("STANLEY", "LEFT")
         OFF: As you wander off, you can't hear what he is saying.
 
     -
