@@ -156,7 +156,7 @@ OFF: Welcome. Shall we start?
             - DOC: *moving his fingers across the runes in patterns, he mutters to himself* Maybe now something will happen..
         }
         
-        + STANLEY: {Sir\?|Sorry to interrupt you again, Sir.}
+        + STANLEY: {Sir\?|Sir\?|Sorry to interrupt you again, Sir.}
         
             ~ look("DOC", "STANLEY")
         
@@ -306,7 +306,7 @@ OFF: Welcome. Shall we start?
             - DOC: {opna:Opna! .. Opna?|Speak openly...}
         }
         
-        + STANLEY: {Sir\?|Sorry to interrupt you again, Sir.}
+        + STANLEY: {Sir\?|Sir\?|Sorry to interrupt you again, Sir.}
         
             ~ look("DOC", "STANLEY")
         
