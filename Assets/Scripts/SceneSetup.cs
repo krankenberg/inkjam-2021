@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using InkFiles;
 using UI;
@@ -13,17 +12,19 @@ public class SceneSetup : MonoBehaviour
     public GameObject DirectionalLight;
     public GameObject BlackScreen;
     public GameObject BlackScreenTitle;
-    
+
     public GameObject[] Scene1Objects;
 
     public GameObject[] Scene2Objects;
     public Transform Scene2_DocMarker;
     public Transform Scene2_StanleyMarker;
-    
+    public Animator EntranceAnimator;
+    private static readonly int Opened = Animator.StringToHash("opened");
+
     public GameObject[] BurialSceneObjects;
     public Transform BurialScene_DocMarker;
     public Transform BurialScene_StanleyMarker;
-    
+
     public GameObject[] OutsideSceneObjects;
     public Transform OutsideScene_DocMarker;
     public Transform OutsideScene_StanleyMarker;
@@ -41,7 +42,7 @@ public class SceneSetup : MonoBehaviour
         ActivateSceneObjects(Scene2Objects, false);
         ActivateSceneObjects(BurialSceneObjects, false);
         ActivateSceneObjects(OutsideSceneObjects, false);
-        
+
         ActivateSceneObjects(sceneObjects, true);
     }
 
@@ -57,10 +58,10 @@ public class SceneSetup : MonoBehaviour
     {
         Debug.Log("setup " + sceneName);
         GlobalGameState.HideUi = true;
-        
+
         StartCoroutine(DoIt(sceneName));
     }
-    
+
     private IEnumerator DoIt(string sceneName)
     {
         Transitioner.FadeIn = true;
@@ -71,7 +72,9 @@ public class SceneSetup : MonoBehaviour
         }
 
         float waitTime = RealSetup(sceneName);
-        
+
+        yield return new WaitForSeconds(0.5F);
+
         Transitioner.FadeOut = true;
 
         while (Transitioner.FadeOut)
@@ -80,7 +83,7 @@ public class SceneSetup : MonoBehaviour
         }
 
         yield return new WaitForSeconds(waitTime);
-        
+
         GlobalGameState.HideUi = false;
     }
 
@@ -89,42 +92,72 @@ public class SceneSetup : MonoBehaviour
         if (sceneName == "START")
         {
             BlackScreenTitle.SetActive(true);
-            return 2.5F;
+            return 1.5F;
         }
+
         if (sceneName == "BRIEFING")
         {
             BlackScreen.SetActive(false);
-            Stanley.GetComponent<Move>().LookAt = Doc.transform;
+            StanleyLookAtDoc();
         }
+
         if (sceneName == "FRONT_OF_GRAVE")
         {
             ActivateScene(Scene2Objects);
             DirectionalLight.SetActive(true);
-            Doc.GetComponent<Transform>().position = Scene2_DocMarker.position;
-            Doc.GetComponent<StartStitchOnClick>().InteractionPoints = Scene2_DocMarker.GetComponent<Marker>().InteractionPoints;
-            Stanley.GetComponent<NavMeshAgent>().Warp(Scene2_StanleyMarker.position);
+
+            Warp(Scene2_DocMarker, Scene2_StanleyMarker);
+            StanleyLookAtDoc();
         }
+
         if (sceneName == "BURIAL_CHAMBER")
         {
             ActivateScene(BurialSceneObjects);
             DirectionalLight.SetActive(false);
-            Doc.GetComponent<Transform>().position = BurialScene_DocMarker.position;
-            Doc.GetComponent<StartStitchOnClick>().InteractionPoints = BurialScene_DocMarker.GetComponent<Marker>().InteractionPoints;
-            Stanley.GetComponent<NavMeshAgent>().Warp(BurialScene_StanleyMarker.position);
+
+            Warp(BurialScene_DocMarker, BurialScene_StanleyMarker);
+            DocLookLeft();
+            StanleyLookAtDoc();
         }
+
         if (sceneName == "OUTSIDE_GRAVE")
         {
             ActivateScene(OutsideSceneObjects);
+            EntranceAnimator.SetBool(Opened, true);
             DirectionalLight.SetActive(true);
-            var light = DirectionalLight.GetComponent<Light>();
-            light.intensity = 0.08F;
+            var directionalLight = DirectionalLight.GetComponent<Light>();
+            directionalLight.intensity = 0.08F;
             var lightRotation = DirectionalLight.transform.rotation.eulerAngles;
             DirectionalLight.transform.rotation = Quaternion.Euler(lightRotation.x, -lightRotation.y, lightRotation.z);
-            Doc.GetComponent<Transform>().position = OutsideScene_DocMarker.position;
-            Doc.GetComponent<StartStitchOnClick>().InteractionPoints = OutsideScene_DocMarker.GetComponent<Marker>().InteractionPoints;
-            Stanley.GetComponent<NavMeshAgent>().Warp(OutsideScene_StanleyMarker.position);
+
+            Warp(OutsideScene_DocMarker, OutsideScene_StanleyMarker);
+            DocLookLeft();
+            StanleyLookAtDoc();
+        }
+
+        if (sceneName == "THE_END")
+        {  
+            BlackScreen.SetActive(true);
+            BlackScreenTitle.SetActive(false);
         }
 
         return 0;
+    }
+
+    private void Warp(Transform docPosition, Transform stanleyPosition)
+    {
+        Doc.GetComponent<Transform>().position = docPosition.position;
+        Doc.GetComponent<StartStitchOnClick>().InteractionPoints = docPosition.GetComponent<Marker>().InteractionPoints;
+        Stanley.GetComponent<NavMeshAgent>().Warp(stanleyPosition.position);
+    }
+
+    private void StanleyLookAtDoc()
+    {
+        Stanley.GetComponent<Move>().LookAt = Doc.transform;
+    }
+
+    private void DocLookLeft()
+    {
+        Doc.GetComponentInChildren<SpriteRenderer>().flipX = true;
     }
 }

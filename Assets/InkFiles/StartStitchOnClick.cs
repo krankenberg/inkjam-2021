@@ -30,7 +30,7 @@ namespace InkFiles
             _playerMove.WalkToPosition(GetClosestInteractionPoint());
         }
 
-        private Vector3 GetClosestInteractionPoint()
+        public Vector3 GetClosestInteractionPoint()
         {
             return InteractionPoints == null || InteractionPoints.Length == 0
                 ? transform.position

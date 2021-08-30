@@ -15,6 +15,7 @@ namespace Camera
 
         private void LateUpdate()
         {
+            _transform.rotation = Quaternion.identity;
             _transform.position = FollowedTransform.position + Offset;
         }
     }

@@ -2,15 +2,16 @@ EXTERNAL setupScene(sceneName)
 EXTERNAL endDialog()
 EXTERNAL sleep(time)
 EXTERNAL look(who, where)
+EXTERNAL event(eventName)
+EXTERNAL walkToDoc()
 
 -> setup_scene("START") ->
 
-OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty short, given the short development time.
+OFF: Welcome. Shall we start?
 
 + [Start Game] OFF: Have fun!
         <>\\n
-        <>\\n
-        <>(Click to continue when the little arrow appears in the bottom right of the text box.)
+        <>(Click to continue when the little arrow appears in the bottom right of the text box or to instantly show the text.)
     -> briefing
 
 == function setupScene(sceneName) ==
@@ -34,6 +35,18 @@ OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty
 == function look(who, where) ==
 
     // look
+
+    ~ return
+    
+== function event(eventName) ==
+
+    // event
+
+    ~ return
+    
+== function walkToDoc() ==
+
+    // event
 
     ~ return
 
@@ -62,7 +75,7 @@ OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty
         
         * STANLEY: Of course, Sir.
             ~ look("DOC", "STANLEY")
-            >>> SLEEP 1
+            >>> SLEEP 0.75
             ~ look("DOC", "RIGHT")
         * [Remain silent]
         
@@ -80,7 +93,11 @@ OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty
 
     = talk_to_doc
     
-        OFF: Dr. Greenwood still stares at the runes, supporting his chin with one hand. And touching some of the runes with the other hand.
+        { cycle:
+            - OFF: Dr. Greenwood still stares at the runes, supporting his chin with one hand. And touching some of the runes with the other hand.
+            - DOC: Hm, maybe those runes will do the trick.
+            - DOC: *moving his fingers across the runes in patterns, he mutters to himself* Maybe now something will happen..
+        }
         
         + STANLEY: Sir?
         
@@ -89,7 +106,7 @@ OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty
             DOC: Yes, Stanley?
             
             -- (talk)
-            ** STANLEY: What do those runes say?
+            ** (rune_knowledge) STANLEY: What do those runes say?
                 DOC: It says: 'Here lies Torleif, fear of Saxons, may he feast well in Valhalla.'
             ** (boat_burial) STANLEY: I thought Vikings had ship burials?
                 DOC: Yes, they had.
@@ -107,17 +124,20 @@ OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty
             
     = look_at_entrance
     
-        OFF: A huge rock is {|still} blocking the entrance.
+        OFF: A huge rock is {|still} blocking the entrance. {||Maybe there is some sort of mechanism to open it.}
         
-        * [Push the rock aside]
-            OFF: You simply **push** the rock aside.
-            -> entrance_opened
-        + [Go away]
             -> dialog_end -> choices
             
     = look_at_runestone
         
-        OFF: You look at a huge stone with small rune letters engraved in it.
+        OFF: You look at a huge stone with small rune letters engraved in it. {rune_knowledge: Dr. Greenwood said, that they say, 'Here lies Torleif, fear of Saxons, may he feast well in Valhalla.'|They don't make any sense to you.}
+        
+        -> dialog_end -> choices
+            
+    = look_at_stones
+    
+        ~ event("STONE_PUZZLE")
+        OFF: You look at some stones. {|They seem to be placed wrongly.} {||Maybe they can be rotated.|Maybe they can be rotated to form some sort of shape.}
         
         -> dialog_end -> choices
         
@@ -131,12 +151,24 @@ OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty
             -> look_at_entrance
         + [Look at the runestone]
             -> look_at_runestone
+        + [Look at the stones]
+            -> look_at_stones
+        + [solve stones]
+            -> entrance_opened
             
     = entrance_opened
     
+        OFF: The earth shakes, something is happening...
+        ~ walkToDoc()
+        ~ event("ENTRANCE_OPEN")
+        ~ look("DOC", "LEFT")
         OFF: Dr. Greenwood flinches shortly.
         DOC: Aha! See Stanley? I knew I was into something with these runes.
+        
+        * STANLEY: Of course, Sir.
+        * [Remain silent]
 
+        -
         -> at_the_burial_chamber
     
 
@@ -149,6 +181,15 @@ OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty
     = initial_talk
         
         DOC: Here we are.
+        ~ look("DOC", "RIGHT")
+        >>> SLEEP 0.5
+        ~ look("DOC", "LEFT")
+        >>> SLEEP 0.5
+        ~ look("DOC", "RIGHT")
+        >>> SLEEP 0.5
+        ~ look("DOC", "LEFT")
+        >>> SLEEP 0.5
+        DOC: Astonishing!
 
     -> outside_grave
     
@@ -162,6 +203,15 @@ OFF: Note: This game does NOT aim to be historically accurate. Also it is pretty
     * STANLEY: Yes, Sir.
     * STANLEY: I quit, Sir.
 
+    -
+    -> the_end
+    
+== the_end
+
+    -> setup_scene("THE_END") ->
+    
+    OFF: Thanks for playing!
+    
     -
     -> END
     

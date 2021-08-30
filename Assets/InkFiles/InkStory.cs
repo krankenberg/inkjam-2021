@@ -13,6 +13,9 @@ namespace InkFiles
         public SceneSetup SceneSetup;
         public SpriteRenderer DocSpriteRenderer;
         public SpriteRenderer StanleySpriteRenderer;
+        public Animator EntranceAnimator;
+        public StonePuzzle StonePuzzle;
+        private static readonly int Open = Animator.StringToHash("open");
 
         public TextAsset InkFile;
 
@@ -26,6 +29,26 @@ namespace InkFiles
             _inkStory.BindExternalFunction("setupScene", (string sceneName) => { SceneSetup.Setup(sceneName); });
 
             _inkStory.BindExternalFunction("endDialog", () => { GlobalGameState.FreePlay = true; });
+
+            _inkStory.BindExternalFunction("walkToDoc",
+                () =>
+                {
+                    StanleySpriteRenderer.GetComponentInParent<Move>()
+                        .WalkToPosition(DocSpriteRenderer.GetComponentInParent<StartStitchOnClick>().GetClosestInteractionPoint());
+                });
+
+            _inkStory.BindExternalFunction("event", (string eventName) =>
+            {
+                if (eventName == "ENTRANCE_OPEN")
+                {
+                    EntranceAnimator.SetBool(Open, true);
+                }
+
+                if (eventName == "STONE_PUZZLE")
+                {
+                    StonePuzzle.StartPuzzle();
+                }
+            });
 
             _inkStory.BindExternalFunction("look", (string who, string where) =>
             {
@@ -56,7 +79,7 @@ namespace InkFiles
         private void Sleep(float time)
         {
             Debug.Log("sleep " + time);
-            
+
             var hideUiBefore = GlobalGameState.HideUi;
             GlobalGameState.HideUi = true;
 
@@ -66,12 +89,8 @@ namespace InkFiles
         private IEnumerator Sleep(float time, bool hideUiBefore)
         {
             yield return new WaitForSeconds(time);
-            
-            Continue();
 
-            yield return null;
-        
-            GlobalGameState.HideUi = hideUiBefore;
+            Continue();
         }
 
         private void Update()
@@ -103,6 +122,11 @@ namespace InkFiles
             {
                 if (changeFreePlay)
                 {
+                    if (GlobalGameState.HideUi)
+                    {
+                        GlobalGameState.HideUi = false;
+                    }
+
                     GlobalGameState.FreePlay = false;
                 }
 
@@ -111,6 +135,7 @@ namespace InkFiles
                 {
                     Sleep(float.Parse(nextLine.Replace(">>> SLEEP ", "")));
                 }
+
                 Debug.Log("Continue: " + nextLine);
                 if (_inkStory.currentTags.Contains("JUST_INKY"))
                 {
